@@ -3,19 +3,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './screens/HomeScreen';
 import DetailsScreen from './screens/DetailsScreen';
 import Perfil from './screens/Perfil';
-import Galeria from './screens/Galeria';
-
 const Stack = createNativeStackNavigator();
-
 export default function App() {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Início" component={HomeScreen} />
-        <Stack.Screen name="Detalhes" component={DetailsScreen} />
-        <Stack.Screen name="Perfil" component={Perfil}/>
-        <Stack.Screen name="Galeria" component={Galeria}/>
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+ return (
+ <NavigationContainer>
+ <Stack.Navigator>
+ <Stack.Screen name="Início" component={HomeScreen} />
+ <Stack.Screen name="Detalhes" component={DetailsScreen} />
+ <Stack.Screen name="Perfil" component={Perfil}/>
+ </Stack.Navigator>
+ </NavigationContainer>
+ );
 }
