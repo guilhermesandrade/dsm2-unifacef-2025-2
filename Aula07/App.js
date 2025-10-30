@@ -1,73 +1,117 @@
-// DesafioFinal.js
-import React, { useState } from 'react';
-import { View, Text, TextInput, SectionList, StyleSheet } from 'react-native';
+import React from 'react';
+import { SectionList, Text, View, StyleSheet, TextInput, useWindowDimensions } from 'react-native';
+import dados from './data/dados'
 
-const produtos = [
-  { categoria: 'Eletrônicos', nome: 'Notebook', preco: 4500 },
-  { categoria: 'Eletrônicos', nome: 'Smartphone', preco: 2500 },
-  { categoria: 'Roupas', nome: 'Camiseta', preco: 80 },
-  { categoria: 'Roupas', nome: 'Jaqueta', preco: 300 },
-];
 
-export default function DesafioFinal() {
-  const [busca, setBusca] = useState('');
+export default function App() {
 
-  // Agrupar produtos por categoria
-  const categorias = [...new Set(produtos.map(p => p.categoria))];
-  const dadosAgrupados = categorias.map(cat => ({
-    title: cat,
-    data: produtos.filter(p => p.categoria === cat && p.nome.toLowerCase().includes(busca.toLowerCase())),
-  }));
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.titulo}>🛍️ Catálogo Interativo</Text>
+ const { width, height } = useWindowDimensions()
 
-      <TextInput
-        style={styles.input}
-        placeholder="Buscar produto..."
-        value={busca}
-        onChangeText={setBusca}
-      />
 
-      <SectionList
-        sections={dadosAgrupados}
-        keyExtractor={(item, index) => item.nome + index}
-        renderItem={({ item }) => (
-          <Text style={styles.item}>{item.nome} - R$ {item.preco}</Text>
-        )}
-        renderSectionHeader={({ section }) => (
-          <Text style={styles.header}>{section.title}</Text>
-        )}
-      />
-    </View>
-  );
+ const [lista, setLista] = React.useState(() => dados)
+ const [filtro, setFiltro] = React.useState('')
+
+
+ const handleFilter = React.useCallback((text) => {
+   setFiltro(text)
+   if (!text) {
+     setLista(dados)
+     return
+   }
+   const q = text.toLowerCase()
+   const filtered = dados
+     .map(section => {
+       const data = section.data.filter(item =>
+         item.nome.toLowerCase().includes(q)
+       )
+       return { ...section, data }
+     })
+     .filter(section => section.data.length > 0)
+
+
+   setLista(filtered)
+ }, [setFiltro, setLista])
+
+
+ const renderItem = React.useCallback(({ item }) => (
+   <Text style={styles.item}>
+     {item.nome} ({item.preco.toLocaleString('pt-BR', { style: "currency", currency: "BRL" })})
+   </Text>
+ ), [])
+
+
+ const renderSectionHeader = React.useCallback(({ section }) => (
+   <Text style={styles.header}>{section.categoria}</Text>
+ ), [])
+
+
+ const keyExtractor = React.useCallback((item) => item.id.toString(), [])
+
+
+ const containerStyle = React.useMemo(() => {
+   const isWide = width >= 600
+   return [
+     styles.container,
+     {
+       paddingHorizontal: isWide ? 24 : 12,
+       paddingTop: isWide ? 20 : 12,
+     }
+   ]
+ }, [width])
+
+
+ return (
+   <View style={containerStyle}>
+     <View style={styles.filter}>
+       <Text style={styles.label}>Filtrar:</Text>
+       <TextInput
+         style={styles.textInput}
+         value={filtro}
+         onChangeText={handleFilter}
+       />
+     </View>
+     <SectionList
+       sections={lista}
+       keyExtractor={keyExtractor}
+       renderItem={renderItem}
+       renderSectionHeader={renderSectionHeader}
+     />
+   </View>
+ );
 }
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  titulo: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 8,
-    borderRadius: 6,
-    marginBottom: 12,
-  },
-  header: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    backgroundColor: '#f2f2f2',
-    padding: 8,
-  },
-  item: {
-    padding: 10,
-  },
+ container: {
+   flex: 1,
+   flexDirection: 'column'
+ },
+ filter: {
+   flexDirection: 'row',
+   backgroundColor: '#ccc',
+   padding: 15,
+   height: 64
+ },
+ label: {
+   marginBottom: 8,
+   marginTop: 8,
+   marginRight: 8,
+ },
+ textInput: {
+   borderWidth: 1,
+   borderColor: '#888',
+   marginBottom: 8,
+   marginTop: 8,
+   padding: 10,
+   borderRadius: 8,
+   backgroundColor: 'white'
+ },
+ header: {
+   fontSize: 20,
+   backgroundColor: '#eee',
+   padding: 8,
+   fontWeight: 'bold',
+ },
+ item: {
+   padding: 10,
+ },
 });
